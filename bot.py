@@ -1,37 +1,52 @@
 import discord
-import responses
+#import responses
+import os
+import asyncpraw
+import config
 
-async def send_message(message, user_message, is_private):
-    try:
-        response = responses.handle_response(user_message)
-        await message.author.send(response) if is_private else await message.channel.send(response)
 
-    except Exception as e:
-        print(e)
+from dotenv import load_dotenv
+from discord.ext import commands
+from animethemes import findAnimeOP
 
-def run_discord_bot():
-    TOKEN = 'MTAwNzAxNDg5MjM1MzYzMDMzMA.GwTf2x._RldbbZ5GDYktrIACO97SBUr5c7BqqdZqeLo0Q'
-    client = discord.Client()
+load_dotenv()
+TOKEN = os.getenv("TOKEN")
 
-    @client.event
-    async def on_ready():
-        print(f'{client.user} has connected to Discord!')
 
-    @client.event
-    async def on_message(message):
-        if message.author == client.user:
-            return
+# client = discord.Client()
+bot = commands.Bot(command_prefix='-')
 
-        username = str(message.author)
-        user_message = str(message.content)
-        channel = str(message.channel)
+@bot.event
+async def on_ready():
+    print(f'{bot.user} has connected to Discord!')
 
-        print(f'{username} sent a message in {channel}: {user_message}')
+@bot.event
+async def on_message(message):
+    await bot.process_commands(message)
 
-        if user_message[0] == '?':
-            user_message = user_message[1:]
-            await send_message(message, user_message, is_private=True)
-        else:
-            await send_message(message, user_message, is_private=False)
+@bot.command()
+async def hello(ctx):
+    await ctx.send('Wassup')
+    return
 
-    client.run(TOKEN)
+@bot.command()
+async def op(ctx, title: str ):
+    if (len(title) < 1):
+        await ctx.send("Please enter a title")
+    
+    reddit = asyncpraw.Reddit(
+        client_id=config.CLIENT_ID, 
+        client_secret=config.CLIENT_SECRET, 
+        username=config.USERNAME, 
+        password=config.PASSWORD, 
+        user_agent=config.USER_AGENT)
+
+    # OPs = await findAnimeOP(title)
+    
+
+    if OPs == -1:
+        return "Couldn't find any openings for " + title
+        
+    return OPs
+# client.run(TOKEN)
+bot.run(TOKEN)
