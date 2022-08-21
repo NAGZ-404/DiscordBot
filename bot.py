@@ -46,12 +46,16 @@ async def op(ctx, *, title: str = None):
         # OPs = await findAnimeOP(title)
         subreddit = await reddit.subreddit("animethemes")
         OPs= []
+        count = 0
 
         await ctx.send("Searching for " + title + "...")
 
-        async for submission in subreddit.search(title, 'new'):
+        async for submission in subreddit.search(title, 'new', 'limit=5'):
+            if count == 5:
+                break
             if submission.link_flair_text == 'Added to wiki' and 'OP' in submission.title:
                 OPs.append(submission.url)
+                count += 1
             else:
                 if submission.link_flair_text == 'Mirror in Comments' and 'OP' in submission.title:
                     for comment in submission.comments.list():
@@ -59,14 +63,17 @@ async def op(ctx, *, title: str = None):
                             url = comment.body.split('Mirror: ')[1]
                             submission.url = url
                             OPs.append(submission)
+                            count += 1
                             break
 
         if not OPs:
             await ctx.send("Couldn't find any openings for " + title)
         else:
+            OPs.reverse()
             await ctx.send("Here are the openings for " + title + ":")
             for anime in OPs:
                 await ctx.send(anime)
+            await ctx.send("Done! If any of the links dont show the video or you want to see more openings from this title, please visit https://www.reddit.com/r/animethemes/")
             
             
     
