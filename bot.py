@@ -7,14 +7,14 @@ import config
 
 from dotenv import load_dotenv
 from discord.ext import commands
-from animethemes import findAnimeOP
+# from animethemes import findAnimeOP
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
-
+intents=discord.Intents.all()
 
 # client = discord.Client()
-bot = commands.Bot(command_prefix='-')
+bot = commands.Bot(command_prefix='-', intents=intents)
 
 
 @bot.event
@@ -71,8 +71,10 @@ async def op(ctx, *, title: str = None):
         else:
             OPs.reverse()
             await ctx.send("Here are the openings for " + title + ":")
-            for anime in OPs:
-                await ctx.send(anime)
+            for op, anime in enumerate(OPs):
+                embed = discord.Embed(title=title, url=anime, description="Opening " + str(op+1), color=0x00ff00)
+                await ctx.send(embed=embed)
+                # await ctx.send(title+ " Opening Result "+str(op)+": "+ anime)
             await ctx.send("Done! If any of the links dont show the video or you want to see more openings from this title, please visit https://www.reddit.com/r/animethemes/")
             
             
