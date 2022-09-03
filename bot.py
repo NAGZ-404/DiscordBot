@@ -4,6 +4,7 @@ import os
 import asyncpraw
 from load_reddit import load_reddit
 from animethemes import findAnimeOP
+from animeinfo import ReturnOfficialAnimeTitle, ReturnAnimeImage
 import config
 
 
@@ -39,7 +40,7 @@ async def op(ctx, *, title: str = None):
     if title is None:
         await ctx.send("Please enter a title")
     else:
-
+        
         await ctx.send("Searching for " + title + "...")
         OPs = await findAnimeOP(ctx, title)
 
@@ -70,11 +71,13 @@ async def op(ctx, *, title: str = None):
         if not OPs:
             await ctx.send("Couldn't find any openings for " + title)
         else:
+            url = ReturnAnimeImage(title)
+            title = ReturnOfficialAnimeTitle(title)
             await ctx.send("Here are the openings for " + title + ":")
             # for op, anime in enumerate(OPs, start=1):
                 # embed = discord.Embed(title=title, url=anime, description="Result: " + str(op), color=0x00ff00)
                 # await ctx.send(embed=embed)
-            embeds = [discord.Embed(title=title, url = anime, description=f'Opening {op}', color = 0x00ff00) for op, anime in enumerate(OPs, start=1)]
+            embeds = [discord.Embed(title=title, url = anime, description=f'Result: {op}', color = 0x00ff00).set_image(url=url) for op, anime in enumerate(OPs, start=1)]
             
             my_pages = [Page(embeds = [embed]) for embed in embeds]
             paginator = Paginator(pages=my_pages)
